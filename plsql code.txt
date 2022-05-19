@@ -1,0 +1,81 @@
+
+Create table guests
+(name varchar2(20),
+Phone number(10),
+City varchar2(20),
+Pro_flg char(1));
+/
+insert into guests (name,phone,city) values('rajesh',783738,'blr');
+insert into guests (name,phone,city) values('bala',78939,'chn');
+insert into guests (name,phone,city) values('arun',892393,'del');
+insert into guests (name,phone,city) values('john',770260,'blr');
+insert into guests (name,phone,city) values('gundu',77026089,'blr');
+insert into guests (name,phone,city) values('tom',8555900,'hyd');
+
+select * from  guests;
+/
+
+Create table customer_guest
+(c_id number(4),
+c_nm varchar2(20),
+c_phone number(10),
+c_city varchar2(20));
+
+/
+insert into customer_guest values(1,'raj',12345,'blr');
+insert into customer_guest values(2,'rani',989734,'hyd');
+insert into customer_guest values(3,'kimm',878384,'chn');
+insert into customer_guest values(4,'rajesh',783738,'blr');
+insert into customer_guest values(6,'arun',892393,'del');
+ select * from customer_guest;
+ /
+ create table call
+(call_id number(10),
+c_nm varchar2(20),
+phone number(10),
+city varchar2(20));
+
+
+select * from sales_retail;
+/
+
+create or replace procedure check_pro  as 
+cursor gus_cur is select name , phone , city from guests for update;
+v_cnt int;
+begin
+    for i in gus_cur loop
+        select count(*) into v_cnt
+        from customer_guest
+        where c_nm=i.name
+        and c_phone=i.phone
+        and c_city=i.city;
+         if v_cnt=1 then
+         delete  from  guests 
+         where current of gus_cur;
+         else
+         insert into call values(1,i.name ,i.phone,i.city);
+         update guests
+         set pro_flg='Y'
+         where current of gus_cur;
+    end if;
+
+end loop;
+end;
+/
+
+exec check_pro;
+truncate TABLE c;
+select * from guests;
+select * from call;
+
+select * from customer;
+/
+create or replace procedure sp_cust(p_city varchar)as
+v_name varchar(20);
+ begin
+ select cust_name into v_name from customer where cust_city=p_city;
+ dbms_output.put_line(v_name)
+ end;
+ 
+/
+exec sp_cust('hubli');
