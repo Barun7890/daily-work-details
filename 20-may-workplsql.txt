@@ -1,0 +1,150 @@
+
+Create table customers_file
+(cust_name varchar2(20),
+Cust_phone number(10),
+Cust_city varchar2(20),
+Cust_since date
+);
+
+insert into customers_file values('raj',12345,'blr','21-jan-19');
+insert into customers_file values('kiran',989734,'hyd','19-mar-18');
+insert into customers_file values('kimm',878384,'chn','29-apr-19');
+insert into customers_file values('rajesh',783738,'blr','31-jan-18');
+insert into customers_file values('arun',892393,'del','23-aug-18');
+insert into customers_file values('rajesh',783738,'blr','31-jan-18');
+insert into customers_file values('arun',892393,'del','23-aug-18');
+
+Create table cust_unique
+(cust_name varchar2(20),
+Cust_phone number(10),
+Cust_city varchar2(20),
+Cust_since date); 
+
+
+Create table cust_duplicates
+(cust_name varchar2(20),
+Cust_phone number(10),
+Cust_city varchar2(20),
+Cust_since date
+);
+
+create sequence seq_custuni ;
+/
+create or replace procedure check_duplicate as
+cursor get_data  is select * from customers_file;
+ v_count number(20);
+ begin
+  for i in get_data loop
+   select count(*) into v_count 
+   from cust_unique
+   where cust_name=i.cust_name
+   and cust_phone=i.cust_phone
+    and cust_city=i.cust_city
+   and cust_since=i.cust_since;
+if v_count=0 then 
+  insert into cust_unique values(i.cust_name,i.cust_phone,i.cust_city,i.cust_since);
+else
+  insert into cust_duplicates values (i.cust_name,i.cust_phone,i.cust_city,i.cust_since);
+end if;
+end loop;
+end; 
+/
+exec check_duplicate;
+ select * from cust_unique;
+ select * from cust_duplicates;
+
+---------------------------------------------------------------
+create table product_day5
+(prod_bkey varchar2(5),
+prod_name varchar2(20),
+price number(10),
+family varchar2(20));
+
+
+insert all
+into product_day5 values('p1','laptop',30000,'electronics')
+into product_day5 values('p2','headphone',3000,'electronics')
+into product_day5 values('p3','earphone',100,'electronics')
+into product_day5 values('p4','chocolates',100,'food')
+into product_day5 values('p5','biscuits',50,'food')
+into product_day5 values('p6','chips',80,'food')
+select * from dual;
+
+select * from customer_day5;
+create table customer_day5
+(cust_bkey varchar2(5),
+cust_name varchar2(20),
+dob date,
+phone number(10),
+address varchar2(20),
+city varchar2(20),
+zip number(10),
+state varchar2(20));
+
+
+insert all
+into customer_day5 values(1102,'xyz','2-may-1990',9656876,'south end','mysore',30012,'karnatak')
+into customer_day5 values(1103,'pqr','4-jun-1989',63782672,'ashoka pillar','habali',456083,'up')
+into customer_day5 values(1104,'lmn','11-jan-2000',97524522,'nandanavana','marathali',756043,'up')
+into customer_day5 values(1105,'mno','23-jan-2001',97827667,'soro','soro2',756042,'odisha')
+into customer_day5 values(1106,'tim','10-jun-2002',98576173,'mathasahi','balasore',756045,'odisha')
+
+select * from dual;
+ select * from sales_retail;
+
+insert all
+into sales_day5 values(1,1101,'p1',10,6,25000,'22-jan-2020')
+into sales_day5 values(2,1102,'p2',11,7,34000,'12-may-2021')
+into sales_day5 values(3,1101,'p3',12,10,85000,'3-dec-2020')
+into sales_day5 values(4,1104,'p6',14,20,20000,'4-jun-2021')
+into sales_day5 values(5,1106,'p7',15,8,45000,'5-may-2001')
+into sales_day5 values(6,1104,'p4',12,5,23000,'22-jan-201')
+select * from dual;
+
+
+select * from sales_day5;
+
+
+create table stores_day5
+(store_bkey varchar2(5),
+store_name varchar2(20),
+address varchar2(20),
+phone number(10),
+city varchar2(20),
+zip number(10),
+state varchar2(20)
+);
+
+
+ insert into stores_day5 values(10,'rk store','ashok nagar',86453663,'bangalore',200012,'karnataka');
+ insert into stores_day5 values(11,'bk store','lane 5 road cross',83773833,'soro',756042,'odisha');
+ insert into stores_day5 values(12,'ravi hp store','cross road lane7',98272862,'balasore',756034,'odisha');
+ insert into stores_day5 values(13,'sankar bhai store','near bridge',76545265,'bangalore',20021,'karnataka');
+insert into stores_day5 values(15,'dell store','lane 6 cross road',745633736,'baglpur',20045,'up');
+select * from dual;
+
+
+--1.	Get the customer names who made sales on or before 1st jan 2014.
+select cust_name 
+from customer_day5 c, sales_day5 s
+where c.cust_bkey=s.cust_bkey and to_char(sales_date,'dd-mon-yyyy')=to_char('1-jan-2014');
+--2.	Get the customer names who made sales yesterday and today.
+select cust_name
+from customer_day5 c, sales_day5 s
+where c.cust_bkey=s.cust_bkey and to_char(sales_date,'day')=to_char(sysdate,'day') and to_char(sales_date ,'day')=to_char(sysdate-1,'day');
+--4.	Get the details of products which has not been sold till today.
+select prod_name
+from product_day5 p ,sales_day5 s
+where p.prod_bkey=s.prod_bkey and to_char(sales_date ,'dd-mon-yy')=sysdate;
+--5.	Get the total sale value (qty*price) of each product.
+select prod_name  , sum(qty*sales_amount) as total
+from product_day5 p, sales_day5 s
+where p.prod_bkey=s.prod_bkey
+group by prod_name;
+--6.	Display the unique product names.
+select distinct(prod_name)
+from product_day5;
+--7.	Display the products which are sold in the first quarter of current year.
+select prod_name
+from product_day5 p , sales_day5 s
+where p.prod_bkey=s.prod_bkey and to_char(sales_date , 'yyyy')=to_char(sysd
